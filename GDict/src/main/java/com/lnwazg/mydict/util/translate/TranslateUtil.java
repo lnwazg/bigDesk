@@ -22,6 +22,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
 
 import com.lnwazg.kit.http.apache.httpclient.HttpClientKit;
 import com.lnwazg.kit.js.JsUtils;
@@ -280,6 +282,106 @@ public class TranslateUtil
     {
         //1.get方法获取页面信息。从中获取音标信息以及当前页面的key、session信息。（注意：翻译的内容不一定存在）
         //2.如果翻译的内容存在的话，则拼接参数来获取json信息，然后解析该json信息的内容
+        
+        HttpClient httpClient = HttpClientKit.getDefaultHttpClient();
+        //处理请求，得到响应  
+        try
+        {
+            HttpGet httpGet = new HttpGet(String.format("http://apii.dict.cn/mini.php?q=%s", text));
+            HttpResponse response = httpClient.execute(httpGet);
+            String pageReturn = EntityUtils.toString(response.getEntity(), "gb2312");
+            if (StringUtils.isEmpty(pageReturn))
+            {
+                return null;
+            }
+            //音标信息
+            String yinbiao = StringUtils.substringBetween(pageReturn, "<span class='p'> ", "</span>");
+            String fanyi = StringUtils.substringBetween(pageReturn, "<div id=\"e\">", "</div>");//翻译
+            if (StringUtils.isEmpty(fanyi))
+            {
+                //连翻译都没有，则的确什么也没有！
+                return null;
+            }
+            String liju = StringUtils.substringBetween(pageReturn, "<div id=\"s\">", "</div>");//例句
+            String bianhua = StringUtils.substringBetween(pageReturn, "<div id=\"t\">", "</div>");//变化
+            String audioUrl = getAudioUrl(text);
+            DictCnTrans dictCnTrans = new DictCnTrans();
+            dictCnTrans.setSrc(text);
+            dictCnTrans.setYinbiao(yinbiao);
+            dictCnTrans.setAudioUrl(audioUrl);
+            //对翻译中的尖括号作特殊处理
+            fanyi = handleSpecialJiankuohao(fanyi);
+            dictCnTrans.setFanyi(fanyi);
+            if (StringUtils.isNotEmpty(liju))
+            {
+                liju = removeAllBtwn(liju, "<a", "</a>");
+                dictCnTrans.setLiju(liju);
+            }
+            if (StringUtils.isNotEmpty(bianhua))
+            {
+                dictCnTrans.setBianhua(bianhua);
+            }
+            dictCnTrans.setNetFail(false);
+            return dictCnTrans;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            DictCnTrans dictCnTrans = new DictCnTrans();
+            dictCnTrans.setNetFail(true);//标记了网络请求失败了这一情况
+            return dictCnTrans;
+        }
+        finally
+        {
+            httpClient.getConnectionManager().shutdown();
+        }
+    }
+    
+    /**
+     * 获取发音文件地址数据
+     * @author nan.li
+     * @param text
+     * @return
+     */
+    private static String getAudioUrl(String text)
+    {
+        String result = null;
+        String url = String.format("http://dict.cn/%s", text);
+        try
+        {
+            org.jsoup.nodes.Document doc = Jsoup.connect(url)
+                .header("User-Agent",
+                    "Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4")
+                .get();
+            Elements element = doc.select("#content > div.main > div.word > div.phonetic > span:nth-child(2) > i.sound.fsound");
+            if (element.isEmpty())
+            {
+                //do nothing
+            }
+            else
+            {
+                result = element.first().attr("naudio");
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
+    /**
+     * hai ci web api更新之后，该方法已失效，最新方法请参考：translateDictCn()
+     * @author nan.li
+     * @param text
+     * @return
+     */
+    @Deprecated
+    public static DictCnTrans translateDictCnOld(String text)
+    {
+        //1.get方法获取页面信息。从中获取音标信息以及当前页面的key、session信息。（注意：翻译的内容不一定存在）
+        //2.如果翻译的内容存在的话，则拼接参数来获取json信息，然后解析该json信息的内容
+        
         HttpClient httpClient = HttpClientKit.getDefaultHttpClient();
         //处理请求，得到响应  
         try
@@ -509,12 +611,12 @@ public class TranslateUtil
         //        System.out.println(TranslateUtil.translate("真不错哦", Language.ENGLISH.getValue()));
         //        System.out.println(TranslateUtil.translate("今天心情好爽！", Language.ENGLISH.getValue()));
         //        System.out.println(TranslateUtil.translate("中文", Language.ENGLISH.getValue()));
-        //                System.out.println(TranslateUtil.translateDictCn("cache"));
+        System.out.println(TranslateUtil.translateDictCn("cache"));
+        System.out.println(TranslateUtil.translateDictCn("fund"));
         //        System.out.println(TranslateUtil.translateDictCn("hadoop"));
-        
-        System.out.println(translateGoogle("good", Language.ENGLISH.getValue(), Language.CHINA.getValue()));
-        System.out.println(translateGoogle("好人", Language.CHINA.getValue(), Language.ENGLISH.getValue()));
-        System.out.println(translateGoogle("monster", Language.ENGLISH.getValue(), Language.CHINA.getValue()));
-        System.out.println(translateGoogle("Monster", Language.ENGLISH.getValue(), Language.CHINA.getValue()));
+        //        System.out.println(translateGoogle("good", Language.ENGLISH.getValue(), Language.CHINA.getValue()));
+        //        System.out.println(translateGoogle("好人", Language.CHINA.getValue(), Language.ENGLISH.getValue()));
+        //        System.out.println(translateGoogle("monster", Language.ENGLISH.getValue(), Language.CHINA.getValue()));
+        //        System.out.println(translateGoogle("Monster", Language.ENGLISH.getValue(), Language.CHINA.getValue()));
     }
 }

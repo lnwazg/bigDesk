@@ -479,9 +479,14 @@ public class Utils
         if (targetFile.exists())
         {
             //该音频文件已经存在，无须再次下载！
+            //这样可以节省下载流量，避免重复下载
+            //但该单词的发音也因此无法更新（例如想从男声发音切换为女声发音就不行了，除非你手动删除掉发音文件）
             return;
         }
-        String fromUrl = String.format("http://dict.cn/mp3.php?q=%s", audioId);
+        //        String fromUrl = String.format("http://dict.cn/mp3.php?q=%s", audioId);
+        
+        //词典的发音库地址做了更新 2018-10-13
+        String fromUrl = String.format("http://audio.dict.cn/%s", audioId);
         try
         {
             IOUtils.copy(new URL(fromUrl).openStream(), new FileOutputStream(targetFile));
