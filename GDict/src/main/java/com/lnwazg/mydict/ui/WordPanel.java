@@ -7,6 +7,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import com.lnwazg.mydict.util.DictDimens;
+
 public class WordPanel extends JPanel
 {
     private static final long serialVersionUID = -6300590826634138504L;
@@ -19,7 +21,7 @@ public class WordPanel extends JPanel
         JScrollPane scrollPane = new JScrollPane();
         add(scrollPane);
         table = new JTable();
-        table.setPreferredScrollableViewportSize(new Dimension(300, 530));
+        table.setPreferredScrollableViewportSize(new Dimension(300, DictDimens.WORDBOOK_HEIGHT));
         scrollPane.setViewportView(table);
     }
     

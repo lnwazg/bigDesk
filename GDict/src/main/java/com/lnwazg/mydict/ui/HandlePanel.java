@@ -18,6 +18,7 @@ import com.lnwazg.kit.swing.SwingUtils;
 import com.lnwazg.kit.taskman.CallableTask;
 import com.lnwazg.mydict.bean.SystemConfig;
 import com.lnwazg.mydict.util.Constant;
+import com.lnwazg.mydict.util.DictDimens;
 import com.lnwazg.mydict.util.IconMgr;
 import com.lnwazg.mydict.util.Utils;
 import com.lnwazg.mydict.util.WinMgr;
@@ -37,7 +38,7 @@ public class HandlePanel extends JPanel
     /**
      * 清除按钮、发音按钮
      */
-    private JButton clear, repair, spell;
+    private JButton clear, repair, spell, changeUISize;
     
     /**
      * 查看单词本开关按钮、自动发音开关按钮、自动查询手动查询的开关按钮
@@ -73,27 +74,24 @@ public class HandlePanel extends JPanel
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                if (((JToggleButton)e.getSource()).getModel().isSelected())
-                {
-                    toggleViewWordBook.setIcon(IconMgr.wordpadIcons[0]);
-                    WinMgr.translateFrame.add(WinMgr.wordPanel);
-                    toggleViewWordBook.setToolTipText("生词本已打开");
-                    //                WinMgr.srcPannel.getSrcArea().setRows(8);
-                    //                WinMgr.targetPannel.getTargetArea().setRows(8);
-                    WinMgr.translateFrame.pack();
-                    SystemConfig.Helper.setOpenWordbook(true);
-                }
-                else
-                {
-                    toggleViewWordBook.setIcon(IconMgr.wordpadIcons[1]);
-                    WinMgr.translateFrame.remove(WinMgr.wordPanel);
-                    toggleViewWordBook.setToolTipText("生词本已关闭");
-                    //                WinMgr.srcPannel.getSrcArea().setRows(6);
-                    //                WinMgr.targetPannel.getTargetArea().setRows(6);
-                    WinMgr.translateFrame.pack();
-                    SystemConfig.Helper.setOpenWordbook(false);
-                }
-                
+                ExecMgr.guiExec.execute(() -> {
+                    if (((JToggleButton)e.getSource()).getModel().isSelected())
+                    {
+                        toggleViewWordBook.setIcon(IconMgr.wordpadIcons[0]);
+                        WinMgr.translateFrame.add(WinMgr.wordPanel);
+                        toggleViewWordBook.setToolTipText("生词本已打开");
+                        WinMgr.translateFrame.pack();
+                        SystemConfig.Helper.setOpenWordbook(true);
+                    }
+                    else
+                    {
+                        toggleViewWordBook.setIcon(IconMgr.wordpadIcons[1]);
+                        WinMgr.translateFrame.remove(WinMgr.wordPanel);
+                        toggleViewWordBook.setToolTipText("生词本已关闭");
+                        WinMgr.translateFrame.pack();
+                        SystemConfig.Helper.setOpenWordbook(false);
+                    }
+                });
             }
         });
         
@@ -108,21 +106,23 @@ public class HandlePanel extends JPanel
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                if (((JToggleButton)e.getSource()).getModel().isSelected())
-                {
-                    toggleAutoQuery.setIcon(IconMgr.autoQueryIcons[0]);
-                    toggleAutoQuery.setToolTipText("自动查询");
-                    WinMgr.translateFrame.pack();
-                    SystemConfig.Helper.setAutoQuery(true);
-                }
-                else
-                {
-                    toggleAutoQuery.setIcon(IconMgr.autoQueryIcons[1]);
-                    toggleAutoQuery.setToolTipText("手动查询(回车键执行查询操作)");
-                    WinMgr.translateFrame.pack();
-                    SystemConfig.Helper.setAutoQuery(false);
-                }
-                WinMgr.srcPannel.lastWord = "";//便于切换后可以重新查询同一个单词
+                ExecMgr.guiExec.execute(() -> {
+                    if (((JToggleButton)e.getSource()).getModel().isSelected())
+                    {
+                        toggleAutoQuery.setIcon(IconMgr.autoQueryIcons[0]);
+                        toggleAutoQuery.setToolTipText("自动查询");
+                        WinMgr.translateFrame.pack();
+                        SystemConfig.Helper.setAutoQuery(true);
+                    }
+                    else
+                    {
+                        toggleAutoQuery.setIcon(IconMgr.autoQueryIcons[1]);
+                        toggleAutoQuery.setToolTipText("手动查询(回车键执行查询操作)");
+                        WinMgr.translateFrame.pack();
+                        SystemConfig.Helper.setAutoQuery(false);
+                    }
+                    WinMgr.srcPannel.lastWord = "";//便于切换后可以重新查询同一个单词
+                });
             }
         });
         
@@ -137,18 +137,20 @@ public class HandlePanel extends JPanel
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                if (((JToggleButton)e.getSource()).getModel().isSelected())
-                {
-                    toggleAutoSpeak.setToolTipText("自动发音已开启");
-                    toggleAutoSpeak.setIcon(IconMgr.autoSpeakIcons[0]);
-                    SystemConfig.Helper.setAutoSpeak(true);
-                }
-                else
-                {
-                    toggleAutoSpeak.setToolTipText("自动发音已关闭");
-                    toggleAutoSpeak.setIcon(IconMgr.autoSpeakIcons[1]);
-                    SystemConfig.Helper.setAutoSpeak(false);
-                }
+                ExecMgr.guiExec.execute(() -> {
+                    if (((JToggleButton)e.getSource()).getModel().isSelected())
+                    {
+                        toggleAutoSpeak.setToolTipText("自动发音已开启");
+                        toggleAutoSpeak.setIcon(IconMgr.autoSpeakIcons[0]);
+                        SystemConfig.Helper.setAutoSpeak(true);
+                    }
+                    else
+                    {
+                        toggleAutoSpeak.setToolTipText("自动发音已关闭");
+                        toggleAutoSpeak.setIcon(IconMgr.autoSpeakIcons[1]);
+                        SystemConfig.Helper.setAutoSpeak(false);
+                    }
+                });
             }
         });
         //修复错误的翻译的问题
@@ -209,6 +211,31 @@ public class HandlePanel extends JPanel
             }
         });
         
+        changeUISize = new JButton(IconMgr.changeUIIcon);
+        SwingUtils.beautyBtn(changeUISize);
+        changeUISize.setToolTipText("切换面板大小");
+        changeUISize.setPreferredSize(new Dimension(40, 25));
+        changeUISize.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                DictDimens.DELTA_SIZE *= -1;
+                ExecMgr.guiExec.execute(() -> {
+                    System.out.println("DictDimens.DELTA_SIZE=" + DictDimens.DELTA_SIZE);
+                    WinMgr.targetPannel.getPaneScrollPane().setPreferredSize(
+                        new Dimension(DictDimens.LEFT_PANEL_WIDTH,
+                            (int)WinMgr.targetPannel.getPaneScrollPane().getPreferredSize().getHeight() + DictDimens.DELTA_SIZE));
+                    
+                    WinMgr.wordPanel.getTable().setPreferredScrollableViewportSize(
+                        new Dimension(300,
+                            (int)WinMgr.wordPanel.getTable().getPreferredScrollableViewportSize().getHeight() + DictDimens.DELTA_SIZE));
+                    
+                    WinMgr.translateFrame.pack();
+                });
+            }
+        });
+        
         //设置布局
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(clear);
@@ -221,8 +248,9 @@ public class HandlePanel extends JPanel
         add(Box.createHorizontalStrut(10));
         add(toggleAutoSpeak);
         add(Box.createHorizontalStrut(10));
+        add(changeUISize);
+        add(Box.createHorizontalStrut(10));
         add(spell);
-        
         audioOff();
     }
     

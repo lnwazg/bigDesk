@@ -16,6 +16,7 @@ import com.lnwazg.kit.taskman.CallableTask;
 import com.lnwazg.mydict.bean.SystemConfig;
 import com.lnwazg.mydict.plugins.Plugin;
 import com.lnwazg.mydict.util.Constant;
+import com.lnwazg.mydict.util.DictDimens;
 import com.lnwazg.mydict.util.Utils;
 import com.lnwazg.mydict.util.WinMgr;
 import com.lnwazg.mydict.util.tasks.StoreToWordbookTask;
@@ -66,7 +67,7 @@ public class SrcPanel extends JPanel
         };
         srcArea.getDocument().addDocumentListener(documentListener);
         paneScrollPane = new JScrollPane(srcArea);
-        paneScrollPane.setPreferredSize(new Dimension(300, 90));
+        paneScrollPane.setPreferredSize(new Dimension(DictDimens.LEFT_PANEL_WIDTH, 90));
         add(paneScrollPane);
     }
     

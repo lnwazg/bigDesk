@@ -15,6 +15,7 @@ import com.lnwazg.mydict.GTmain;
  */
 public class IconMgr
 {
+    
     public static Image icon = Toolkit.getDefaultToolkit().createImage(GTmain.class.getClassLoader().getResource("icons/icon.png"));//16*16
     
     public static Image iconHeavy = Toolkit.getDefaultToolkit().createImage(GTmain.class.getClassLoader().getResource("icons/iconHeavy.png"));//16*16
@@ -38,6 +39,8 @@ public class IconMgr
      * 修复的图标
      */
     public static Icon repairIcon = ImageUtil.getIcon("icons/repair.gif");
+    
+    public static final Icon changeUIIcon = ImageUtil.getIcon("icons/changeUI.png");
     
     /**
      * 开启\关闭自动发音

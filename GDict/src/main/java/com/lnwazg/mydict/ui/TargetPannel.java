@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import com.lnwazg.mydict.util.DictDimens;
 import com.lnwazg.mydict.util.WinMgr;
 
 public class TargetPannel extends JPanel
@@ -66,7 +67,7 @@ public class TargetPannel extends JPanel
             }
         });
         paneScrollPane = new JScrollPane(textPane);
-        paneScrollPane.setPreferredSize(new Dimension(300, 420));
+        paneScrollPane.setPreferredSize(new Dimension(DictDimens.LEFT_PANEL_WIDTH, DictDimens.TRANSLATE_HEIGHT));
         add(paneScrollPane);
         
     }
@@ -75,4 +76,10 @@ public class TargetPannel extends JPanel
     {
         return textPane;
     }
+    
+    public JScrollPane getPaneScrollPane()
+    {
+        return paneScrollPane;
+    }
+    
 }
