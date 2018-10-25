@@ -22,14 +22,11 @@ public class StoreToWordbookTask implements Runnable
 {
     private String word;
     
-    //    Timer timer;
-    
     ScheduledFuture<?> future;
     
     public StoreToWordbookTask(String word)
     {
         this.word = word;
-        //        timer = new Timer(true);
     }
     
     /**
@@ -38,7 +35,6 @@ public class StoreToWordbookTask implements Runnable
      */
     public void cancelAdd()
     {
-        //        timer.cancel();
         if (future != null)
         {
             //无条件取消，无论成败
@@ -63,6 +59,7 @@ public class StoreToWordbookTask implements Runnable
             {
                 System.out.println(String.format("%s请求加入生词本，开始验证...", word));
                 TaskMap.remove(word);
+                
                 //处理生词本
                 if (checkUnFamiliarWord(word))
                 {

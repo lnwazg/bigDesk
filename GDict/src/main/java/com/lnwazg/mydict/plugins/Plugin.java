@@ -28,22 +28,25 @@ public class Plugin
      */
     public static String subSystemProcessUnit(String input)
     {
-        switch (input)
-        {
-            case "$$":
-                return "$$";
-            case "$$help":
-                return "$$hackThunderOfflineVip       解锁小电影高速通道<br>" + "$$hackThunderOfflineVip2     解锁所有资源高速通道<br>"
-                    + "$$带我上车                              随机推荐一个精品番号<br>" + "$$带我飙车                              随机推荐100个精品番号<br>"
-                    + "$$我要当司机                           自动导入100个最优番号，并自动开启迅雷下载";
-            case "$$hackThunderOfflineVip":
-                return "小电影高速通道解锁完毕！";
-        }
         if (StringUtils.startsWith(input, "$"))
         {
-            return WeixinPlugin.process(input);
+            switch (input)
+            {
+                case "$$":
+                    return "$$";
+                case "$$help":
+                    return "$$hackThunderOfflineVip       解锁小电影高速通道<br>" + "$$hackThunderOfflineVip2     解锁所有资源高速通道<br>"
+                        + "$$带我上车                              随机推荐一个精品番号<br>" + "$$带我飙车                              随机推荐100个精品番号<br>"
+                        + "$$我要当司机                           自动导入100个最优番号，并自动开启迅雷下载";
+                case "$$hackThunderOfflineVip":
+                    return "小电影高速通道解锁完毕！";
+                default:
+                    return WeixinPlugin.process(input);
+            }
         }
-        return null;
+        else
+        {
+            return null;
+        }
     }
-    
 }

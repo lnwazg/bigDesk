@@ -9,5 +9,4 @@ public class InitDictMap implements IHandler
     {
         //        WinMgr.dictMap = new DictMap();
     }
-    
 }

@@ -182,6 +182,7 @@ public class Utils
     
     public static void getDetailedTrans(final String src, final String googleResult)
     {
+        //显示彩色的“loading...”作为缓冲
         ExecMgr.guiExec.execute(new Runnable()
         {
             @Override
@@ -192,25 +193,62 @@ public class Utils
                 WinMgr.targetPannel.getTextPane().setCaretPosition(0);
             }
         });
+        
         ExecMgr.cachedExec.execute(new Runnable()
         {
             public void run()
             {
                 String htmlString = DictMap.get(src);
                 String audioUrl = DictMap.get(String.format("%s[audio]", src));
+                
                 //充分利用了强大的缓存机制，并不失时效性
                 //1.若本地缓存中没有，则重新创建一个
-                //2.若从来都没查过图片(不存在IMGVISITED标记的则表示从未查过图片)，则尝试重新查询一次。如果查询过，那么无论成功或者失败了，都要设置一个flag:IMGVISITED，标记图片已经查过了
+                //2.若从来都没查过图片(不存在IMGVISITED标记的则表示从未查过图片)，则尝试重新查询一次。
+                //  如果查询过，那么无论成功或者失败了，都要设置一个flag:IMGVISITED，标记图片已经查过了
                 //3.如果已经存在的解释中含有$$google$$字样，则说明曾经因为网络问题而请求失败了，那么此处需要重新请求一次
                 //4.检查DICTCN_VISITED（是否查询成功过海词）标记，若不存在，则依然需要重新请求一次
                 
-                if (htmlString == null || StringUtils.indexOf(htmlString, Constant.IMGVISITED) == -1 || StringUtils.indexOf(htmlString, "$$google$$") != -1
-                    || StringUtils.indexOf(htmlString, Constant.DICTCN_VISITED) == -1)
+                //缓存刷新保障
+                if (htmlString == null ||
+                    StringUtils.indexOf(htmlString, Constant.IMGVISITED) == -1 ||
+                    StringUtils.indexOf(htmlString, "$$google$$") != -1 ||
+                    StringUtils.indexOf(htmlString, Constant.DICTCN_VISITED) == -1)
                 {
-                    System.out.println("联网查询: " + src);
+                    System.out.println("开始联网查询: " + src);
+                    
                     htmlString = StringUtils.replace(Constant.HTML_TEMPLATE, "$$google$$", googleResult);//存储google翻译的结果
+                    
+                    //图片获取
+                    String imgUrl = getWordTranslateImageUrl(src);
+                    if (StringUtils.isEmpty(imgUrl))
+                    {
+                        htmlString = StringUtils.replace(htmlString, "$$image$$", Constant.IMGVISITED);
+                    }
+                    else
+                    {
+                        //返回的图片信息不为空时
+                        //如果图片信息是一个特定的标记
+                        if (Constant.MSG_NET_FAIL.equals(imgUrl))
+                        {
+                            //这一次因为网络异常而导致请求图片失败了，那么下次要继续尝试哦
+                            htmlString = StringUtils.replace(htmlString, "$$image$$", "");
+                        }
+                        else
+                        {
+                            //manual,Manual的imgUrl是一样的!
+                            //manual.jpg和Manual.jpg在windows上存储的结果是一样的！也就是说，windows上只能存储一份！
+                            //所以，统一存储为小写的，大写的也直接采用小写的url即可！
+                            imgUrl = downloadToLocal(imgUrl, src);
+                            htmlString = StringUtils.replace(htmlString,
+                                "$$image$$",
+                                Constant.IMGVISITED +
+                                    ImageUtil.getAutoZoonImageHtmlByMaxDimen(imgUrl, Constant.IMAGE_MAX_DIMEN));
+                        }
+                    }
+                    
                     //dictCn翻译的结果
                     DictCnTrans dictCnTrans = TranslateUtil.translateDictCn(src);
+                    
                     StringBuilder dictCn = new StringBuilder();
                     if (dictCnTrans != null && !dictCnTrans.isNetFail())
                     {
@@ -235,32 +273,6 @@ public class Utils
                         {
                             dictCn.append(String.format("<div class=\"t\">------词形变化------</div><div id=\"t\">%s</div><br>", dictCnTrans.getBianhua()))
                                 .append(NEW_LINE);
-                        }
-                    }
-                    //图片获取
-                    String imgUrl = getWordTranslateImageUrl(src);
-                    if (StringUtils.isEmpty(imgUrl))
-                    {
-                        htmlString = StringUtils.replace(htmlString, "$$image$$", Constant.IMGVISITED);
-                    }
-                    else
-                    {
-                        if (Constant.MSG_NET_FAIL.equals(imgUrl))
-                        {
-                            //只是这一次网络请求图片失败了，那么下次要继续尝试哦
-                            htmlString = StringUtils.replace(htmlString, "$$image$$", "");
-                        }
-                        else
-                        {
-                            //manual,Manual的imgUrl是一样的!
-                            //manual.jpg和Manual.jpg在windows上存储的结果是一样的！也就是说，windows上只能存储一份！
-                            //所以，统一存储为小写的，大写的也直接采用小写的url即可！
-                            imgUrl = downloadToLocal(imgUrl, src);
-                            htmlString = StringUtils.replace(htmlString,
-                                "$$image$$",
-                                Constant.IMGVISITED + ImageUtil.getAutoZoonImageHtmlByMaxDimen(imgUrl, Constant.IMAGE_MAX_DIMEN));
-                            //                        htmlString = StringUtils.replace(htmlString, "$$image$$", ImageUtil.getAutoZoonImageHtmlByHeight(imgUrl, IMAGE_HEIGHT));
-                            //                        htmlString = StringUtils.replace(htmlString, "$$image$$", ImageUtil.getAutoZoonImageHtmlByWidth(imgUrl, IMAGE_WIDTH));
                         }
                     }
                     
@@ -292,9 +304,11 @@ public class Utils
                         DictMap.put(String.format("%s[audio]", src), audioUrl);
                     }
                 }
-                //                System.out.println(htmlString);
-                //                System.out.println();
-                //                System.out.println();
+                else
+                {
+                    //directly get translation content from cache
+                }
+                
                 final String finalHtmlString = htmlString;
                 final String finalAudioUrl = audioUrl;
                 //我擦嘞 原来guiExec并没有问题！如果慢，那么必定是其他的guiExec拖慢了速度！

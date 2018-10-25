@@ -175,13 +175,14 @@ public class SrcPanel extends JPanel
             {
                 //只有一个字母的时候，让百度翻译，可能会感觉会出现了一些不符实际的字符
                 //因此，一个字母的时候，有必要过滤掉百度翻译！
-                String src = WinMgr.srcPannel.getSrcArea().getText();
-                if (StringUtils.isNotBlank(src))
+                String inputContent = WinMgr.srcPannel.getSrcArea().getText();
+                if (StringUtils.isNotBlank(inputContent))
                 {
                     //只有当输入的文字非空，才会进行翻译处理
-                    String trimedSrc = StringUtils.trim(src);
+                    String trimedSrc = StringUtils.trim(inputContent);
                     String trimedLastWord = StringUtils.trim(lastWord);
                     String trimedLastLastWord = StringUtils.trim(lastLastWord);
+                    //优先交给子系统去处理
                     String wxResult = Plugin.subSystemProcessUnit(trimedSrc);
                     if (StringUtils.isNotEmpty(wxResult))
                     {
@@ -196,8 +197,7 @@ public class SrcPanel extends JPanel
                         });
                         return;
                     }
-                    
-                    if (lastWord.length() == 0)
+                    else if (lastWord.length() == 0)
                     {
                         WinMgr.handlePanel.audioOff();//先关闭音频（防止万一查出来的玩意不能发音呢！！）
                         //一开始没有内容的情况
@@ -262,26 +262,27 @@ public class SrcPanel extends JPanel
                 }
                 else
                 {
-                    src = "";
+                    inputContent = "";
                     //同时将src和target清空
                     //WinMgr.srcPannel.getSrcArea().setText("");
                     WinMgr.targetPannel.getTextPane().setText("");
                 }
+                
                 //逐级向前覆盖
                 lastLastWord = lastWord;
-                lastWord = src;
+                lastWord = inputContent;
                 
                 if (!SystemConfig.Helper.isAutoQuery())
                 {
                     //如果是手动查询，那么查询完毕之后，要去除掉结尾的回车键，并将光标放置到最后
                     WinMgr.srcPannel.getSrcArea().getDocument().removeDocumentListener(WinMgr.srcPannel.getDocumentListener());
-                    src = StringUtils.substring(src, 0, src.length() - 1);
-                    WinMgr.srcPannel.getSrcArea().setText(src);
-                    WinMgr.srcPannel.getSrcArea().setCaretPosition(src.length());
+                    inputContent = StringUtils.substring(inputContent, 0, inputContent.length() - 1);
+                    WinMgr.srcPannel.getSrcArea().setText(inputContent);
+                    WinMgr.srcPannel.getSrcArea().setCaretPosition(inputContent.length());
                     WinMgr.srcPannel.getSrcArea().getDocument().addDocumentListener(WinMgr.srcPannel.getDocumentListener());
                     
                     NotAutoNeedNewQuery = true;//非自动的情况下，下一次的查询需要完全查一个新单词
-                    NeedNewQueryOldWord = src;
+                    NeedNewQueryOldWord = inputContent;
                 }
             }
         });

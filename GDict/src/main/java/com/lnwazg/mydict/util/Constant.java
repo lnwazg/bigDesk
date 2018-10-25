@@ -103,7 +103,7 @@ public class Constant
     /**
      * 插图的最大尺寸
      */
-    static final int IMAGE_MAX_DIMEN = 187;
+    static final int IMAGE_MAX_DIMEN = 190;
     
     public static final int IMG_SERVER_PORT = 1701;
     
