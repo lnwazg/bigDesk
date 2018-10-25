@@ -25,12 +25,6 @@ import com.lnwazg.kit.swing.ui.comp.SmartButton;
 import com.lnwazg.mydict.util.Constant;
 import com.lnwazg.mydict.util.WinMgr;
 
-//import javafx.application.Platform;
-//import javafx.embed.swing.JFXPanel;
-//import javafx.scene.Scene;
-//import javafx.scene.web.WebEngine;
-//import javafx.scene.web.WebView;
-
 /**
  * 弹出图片的对话框
  * @author Administrator
@@ -75,17 +69,6 @@ public class ImageDialog extends JDialog
         corePanel.add(handlePanel);
         corePanel.add(Box.createVerticalStrut(10));
         c.add(corePanel, BorderLayout.CENTER);
-        
-//        //使用javafx的组件
-//        JFXPanel webBrowser = new JFXPanel();
-//        Platform.runLater(() -> {
-//            WebView webView = new WebView();
-//            final WebEngine webEngine = webView.getEngine();
-//            webEngine.setUserAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4");
-//            webEngine.load("http://www.baidu.com");
-//            webBrowser.setScene(new Scene(webView));
-//        });
-//        c.add(webBrowser, BorderLayout.NORTH);
     }
     
     public void showImage()

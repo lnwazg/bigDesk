@@ -22,11 +22,6 @@ public class TargetPannel extends JPanel
     public TargetPannel()
     {
         setBorder(BorderFactory.createTitledBorder("翻译结果"));
-        //        this.targetArea = new JTextArea();
-        //        this.targetArea.setColumns(35);
-        //        this.targetArea.setRows(6);
-        //        this.targetArea.setLineWrap(true);
-        //        this.targetArea.setWrapStyleWord(true);
         textPane = new JTextPane();
         textPane.setEditable(false);
         textPane.setContentType("text/html");
@@ -70,12 +65,8 @@ public class TargetPannel extends JPanel
                 }
             }
         });
-        //        add(textPane);
         paneScrollPane = new JScrollPane(textPane);
-        //        paneScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        paneScrollPane.setPreferredSize(new Dimension(300, 250));
-        
-        //        paneScrollPane.setMinimumSize(new Dimension(10, 10));
+        paneScrollPane.setPreferredSize(new Dimension(300, 420));
         add(paneScrollPane);
         
     }
