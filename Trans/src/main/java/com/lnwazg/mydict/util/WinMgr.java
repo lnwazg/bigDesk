@@ -17,12 +17,6 @@ import com.lnwazg.mydict.ui.WordPanel;
  */
 public class WinMgr
 {
-    /**
-     * 字典表
-     */
-    //    public static DictMap dictMap;
-    
-    //======================================================================
     public static TranslateFrame translateFrame;
     
     public static TargetPannel targetPannel;
@@ -34,7 +28,7 @@ public class WinMgr
     public static WordPanel wordPanel;
     
     public static JPanel leftPanel;
-
+    
     public static ImageDialog imageDialog;
     
 }

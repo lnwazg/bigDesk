@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 import com.lnwazg.dbkit.jdbc.MyJdbc;
+import com.lnwazg.dbkit.tools.db.collection.DbHashMap;
 import com.lnwazg.dbkit.utils.DbKit;
 import com.lnwazg.kit.executor.ExecMgr;
 import com.lnwazg.kit.handlerseq.HandlerSequence;
@@ -64,6 +65,7 @@ public class Bootstrap
         B.s(MyJdbc.class, jdbc);
         // 自动初始化表结构
         DbKit.packageSearchAndInitTables("com.lnwazg.mydict.entity");
+        B.s(DbHashMap.class, new DbHashMap<>(jdbc, String.class, String.class));
     }
     
     public static void initUtils()

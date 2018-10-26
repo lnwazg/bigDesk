@@ -38,9 +38,6 @@ import com.lnwazg.mydict.util.translate.dictcn.DictCnTrans;
  */
 public class Utils
 {
-    /**
-    * Logger for this class
-    */
     public static final Log logger = LogFactory.getLog(Utils.class);
     
     /**

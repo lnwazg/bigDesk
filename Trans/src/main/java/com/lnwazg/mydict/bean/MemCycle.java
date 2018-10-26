@@ -17,7 +17,7 @@ public class MemCycle
     private List<RemUnit> remUnits;
     
     /**
-     * 成就
+     * 成就<br>
      * 每杀死一个单词,则成就数目+1
      */
     private int achievement;

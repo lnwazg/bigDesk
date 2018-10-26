@@ -1,6 +1,8 @@
 package com.lnwazg.mydict.bean;
 
-import com.lnwazg.kit.json.GsonCfgMgr;
+import com.lnwazg.dbkit.tools.db.collection.DbHashMap;
+import com.lnwazg.kit.converter.VC;
+import com.lnwazg.kit.singleton.B;
 
 /**
  * 系统配置信息
@@ -9,113 +11,37 @@ import com.lnwazg.kit.json.GsonCfgMgr;
  */
 public class SystemConfig
 {
-    //是否打开了单词本
-    private boolean openWordbook;
-    
-    //是否自动发音
-    private boolean autoSpeak;
-    
-    //是否自动查询
-    private boolean autoQuery;
-    
-    public boolean isAutoQuery()
+    public static boolean isOpenWordbook()
     {
-        return autoQuery;
+        return VC.of(B.q(DbHashMap.class).get("openWordbook")).getAsBoolean();
     }
     
-    public void setAutoQuery(boolean autoQuery)
+    @SuppressWarnings("unchecked")
+    public static void setOpenWordbook(boolean openWordbook)
     {
-        this.autoQuery = autoQuery;
+        ((DbHashMap<String, String>)B.q(DbHashMap.class)).put("openWordbook", openWordbook + "");
     }
     
-    public boolean isOpenWordbook()
+    public static boolean isAutoSpeak()
     {
-        return openWordbook;
+        return VC.of(B.q(DbHashMap.class).get("autoSpeak")).getAsBoolean();
     }
     
-    public void setOpenWordbook(boolean openWordbook)
+    @SuppressWarnings("unchecked")
+    public static void setAutoSpeak(boolean autoSpeak)
     {
-        this.openWordbook = openWordbook;
+        ((DbHashMap<String, String>)B.q(DbHashMap.class)).put("autoSpeak", autoSpeak + "");
     }
     
-    public boolean isAutoSpeak()
+    public static boolean isAutoQuery()
     {
-        return autoSpeak;
+        return VC.of(B.q(DbHashMap.class).get("autoQuery")).getAsBoolean();
     }
     
-    public void setAutoSpeak(boolean autoSpeak)
+    @SuppressWarnings("unchecked")
+    public static void setAutoQuery(boolean autoQuery)
     {
-        this.autoSpeak = autoSpeak;
+        ((DbHashMap<String, String>)B.q(DbHashMap.class)).put("autoQuery", autoQuery + "");
     }
     
-    /**
-     * 快捷好用的帮助类，可快速存取属性
-     * @author Administrator
-     * @version 2016年4月10日
-     */
-    public static class Helper
-    {
-        public static boolean isOpenWordbook()
-        {
-            SystemConfig systemConfig = GsonCfgMgr.readObject(SystemConfig.class);
-            if (systemConfig != null)
-            {
-                return systemConfig.isOpenWordbook();
-            }
-            return true;
-        }
-        
-        public static void setOpenWordbook(boolean openWordbook)
-        {
-            SystemConfig systemConfig = GsonCfgMgr.readObject(SystemConfig.class);
-            if (systemConfig == null)
-            {
-                systemConfig = new SystemConfig();
-            }
-            systemConfig.setOpenWordbook(openWordbook);
-            GsonCfgMgr.writeObject(systemConfig);
-        }
-        
-        public static boolean isAutoSpeak()
-        {
-            SystemConfig systemConfig = GsonCfgMgr.readObject(SystemConfig.class);
-            if (systemConfig != null)
-            {
-                return systemConfig.isAutoSpeak();
-            }
-            return false;
-        }
-        
-        public static void setAutoSpeak(boolean autoSpeak)
-        {
-            SystemConfig systemConfig = GsonCfgMgr.readObject(SystemConfig.class);
-            if (systemConfig == null)
-            {
-                systemConfig = new SystemConfig();
-            }
-            systemConfig.setAutoSpeak(autoSpeak);
-            GsonCfgMgr.writeObject(systemConfig);
-        }
-        
-        public static void setAutoQuery(boolean autoQuery)
-        {
-            SystemConfig systemConfig = GsonCfgMgr.readObject(SystemConfig.class);
-            if (systemConfig == null)
-            {
-                systemConfig = new SystemConfig();
-            }
-            systemConfig.setAutoQuery(autoQuery);
-            GsonCfgMgr.writeObject(systemConfig);
-        }
-        
-        public static boolean isAutoQuery()
-        {
-            SystemConfig systemConfig = GsonCfgMgr.readObject(SystemConfig.class);
-            if (systemConfig != null)
-            {
-                return systemConfig.isAutoQuery();
-            }
-            return false;
-        }
-    }
 }
