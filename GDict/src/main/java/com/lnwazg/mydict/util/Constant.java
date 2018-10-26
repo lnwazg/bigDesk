@@ -100,11 +100,6 @@ public class Constant
      */
     static final String MSG_NET_FAIL = "MSG_NET_FAIL";
     
-    /**
-     * 插图的最大尺寸
-     */
-    static final int IMAGE_MAX_DIMEN = 190;
-    
     public static final int IMG_SERVER_PORT = 1701;
     
     public static final String IMG_SERVER_CONTEXT_PATH = "/image";

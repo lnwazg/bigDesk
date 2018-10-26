@@ -113,7 +113,7 @@ public class Utils
                     {
                         htmlString = StringUtils.replace(htmlString,
                             "$$image$$",
-                            Constant.IMGVISITED + ImageUtil.getAutoZoonImageHtmlByMaxDimen(imgUrl, Constant.IMAGE_MAX_DIMEN));
+                            Constant.IMGVISITED + ImageUtil.getAutoZoonImageHtmlByMaxDimen(imgUrl, DictDimens.IMAGE_MAX_DIMEN));
                     }
                 }
             }
@@ -219,8 +219,9 @@ public class Utils
                     htmlString = StringUtils.replace(Constant.HTML_TEMPLATE, "$$google$$", googleResult);//存储google翻译的结果
                     
                     //图片获取
-                    String imgUrl = getWordTranslateImageUrl(src);
-                    if (StringUtils.isEmpty(imgUrl))
+                    String imgWebUrl = getWordTranslateImageUrl(src);
+                    
+                    if (StringUtils.isEmpty(imgWebUrl))
                     {
                         htmlString = StringUtils.replace(htmlString, "$$image$$", Constant.IMGVISITED);
                     }
@@ -228,7 +229,7 @@ public class Utils
                     {
                         //返回的图片信息不为空时
                         //如果图片信息是一个特定的标记
-                        if (Constant.MSG_NET_FAIL.equals(imgUrl))
+                        if (Constant.MSG_NET_FAIL.equals(imgWebUrl))
                         {
                             //这一次因为网络异常而导致请求图片失败了，那么下次要继续尝试哦
                             htmlString = StringUtils.replace(htmlString, "$$image$$", "");
@@ -238,11 +239,12 @@ public class Utils
                             //manual,Manual的imgUrl是一样的!
                             //manual.jpg和Manual.jpg在windows上存储的结果是一样的！也就是说，windows上只能存储一份！
                             //所以，统一存储为小写的，大写的也直接采用小写的url即可！
-                            imgUrl = downloadToLocal(imgUrl, src);
+                            String imgLocalUrl = downloadToLocal(imgWebUrl, src);
+                            
                             htmlString = StringUtils.replace(htmlString,
                                 "$$image$$",
                                 Constant.IMGVISITED +
-                                    ImageUtil.getAutoZoonImageHtmlByMaxDimen(imgUrl, Constant.IMAGE_MAX_DIMEN));
+                                    ImageUtil.getAutoZoonImageHtmlByMaxDimen(imgLocalUrl, DictDimens.IMAGE_MAX_DIMEN));
                         }
                     }
                     

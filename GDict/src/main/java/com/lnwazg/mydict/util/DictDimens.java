@@ -14,4 +14,9 @@ public class DictDimens
     public static final int WORDBOOK_HEIGHT = 520;
     
     public static int DELTA_SIZE = 100;
+    
+    /**
+     * 插图的最大宽高
+     */
+    static final int IMAGE_MAX_DIMEN = 220;
 }
