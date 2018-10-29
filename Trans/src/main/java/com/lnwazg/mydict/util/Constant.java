@@ -85,6 +85,10 @@ public class Constant
     
     public static String HTML_TEMPLATE = "";
     
+    public static final String IMG_FOLDER = "image";
+    
+    public static final String WORD_IMAGE_SUFFIX = ".jpg";
+    
     /**
      * 海词已经成功请求过
      */

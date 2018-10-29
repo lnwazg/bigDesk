@@ -3,8 +3,9 @@ package com.lnwazg.mydict.util.tasks;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.lnwazg.dbkit.tools.dbcache.tablemap.DBConfigHelper;
 import com.lnwazg.kit.executor.ExecMgr;
-import com.lnwazg.mydict.bean.SystemConfig;
+import com.lnwazg.kit.singleton.B;
 import com.lnwazg.mydict.util.Constant;
 import com.lnwazg.mydict.util.Utils;
 import com.lnwazg.mydict.util.level.LevelMgr;
@@ -23,6 +24,8 @@ public class StoreToWordbookTask implements Runnable
     private String word;
     
     ScheduledFuture<?> future;
+    
+    DBConfigHelper dbConfigHelper = B.q(DBConfigHelper.class);
     
     public StoreToWordbookTask(String word)
     {
@@ -78,7 +81,7 @@ public class StoreToWordbookTask implements Runnable
         };
         //        timer.schedule(task, DELAY);
         //延迟一定的时间段时候再执行该任务
-        if (SystemConfig.Helper.isAutoQuery())
+        if (dbConfigHelper.getAsBoolean("autoQuery"))
         {
             future = ExecMgr.scheduledExec.schedule(task, Constant.QUERY_DELAY_MILLSECONDS, TimeUnit.MILLISECONDS);
         }

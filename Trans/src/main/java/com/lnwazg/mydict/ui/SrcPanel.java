@@ -11,9 +11,10 @@ import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.lnwazg.dbkit.tools.dbcache.tablemap.DBConfigHelper;
 import com.lnwazg.kit.executor.ExecMgr;
+import com.lnwazg.kit.singleton.B;
 import com.lnwazg.kit.taskman.CallableTask;
-import com.lnwazg.mydict.bean.SystemConfig;
 import com.lnwazg.mydict.plugins.Plugin;
 import com.lnwazg.mydict.util.Constant;
 import com.lnwazg.mydict.util.DictDimens;
@@ -37,6 +38,10 @@ public class SrcPanel extends JPanel
     private boolean NotAutoNeedNewQuery = false;
     
     private String NeedNewQueryOldWord = "";
+    
+    DBConfigHelper dbConfigHelper = B.q(DBConfigHelper.class);
+    
+    public static boolean autoQuery;
     
     public SrcPanel()
     {
@@ -132,7 +137,7 @@ public class SrcPanel extends JPanel
         //此处分为两种情况：
         //1.如果是自动查询，则直接执行下面即可
         //2.如果是手动查询，则需要判定如果最后以\n结尾，才查询。否则，无须查询。
-        if (SystemConfig.Helper.isAutoQuery())
+        if (autoQuery)
         {
             query();
         }
@@ -171,6 +176,7 @@ public class SrcPanel extends JPanel
         //依次提交任务，所以此处用singleExec没有问题！
         ExecMgr.singleExec.execute(new Runnable()
         {
+            
             @Override
             public void run()
             {
@@ -273,7 +279,7 @@ public class SrcPanel extends JPanel
                 lastLastWord = lastWord;
                 lastWord = inputContent;
                 
-                if (!SystemConfig.Helper.isAutoQuery())
+                if (autoQuery)
                 {
                     //如果是手动查询，那么查询完毕之后，要去除掉结尾的回车键，并将光标放置到最后
                     WinMgr.srcPannel.getSrcArea().getDocument().removeDocumentListener(WinMgr.srcPannel.getDocumentListener());

@@ -4,10 +4,9 @@ import java.sql.SQLException;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.lnwazg.dbkit.jdbc.MyJdbc;
-import com.lnwazg.dbkit.utils.DbKit;
+import com.lnwazg.dbkit.proxy.sqlite.SQLiteSyncWriteAccessDao;
+import com.lnwazg.kit.singleton.B;
 import com.lnwazg.mydict.entity.Word;
-import com.lnwazg.mydict.util.Constant;
 
 /**
  * 字典表<br>
@@ -18,11 +17,13 @@ import com.lnwazg.mydict.util.Constant;
  */
 public class DictMap
 {
+    static SQLiteSyncWriteAccessDao sqLiteSyncWriteAccessDao = B.q(SQLiteSyncWriteAccessDao.class);
+    
     public static String get(String key)
     {
         try
         {
-            return jdbc.findValue("select value from Word where name=?", key);
+            return sqLiteSyncWriteAccessDao.findValue("select value from Word where name=?", key);
         }
         catch (SQLException e)
         {
@@ -33,40 +34,33 @@ public class DictMap
     
     public static void put(String key, String value)
     {
-        synchronized (lock)
+        try
         {
-            try
+            Word word = new Word().setName(key).setValue(value);
+            if (StringUtils.isNotEmpty(get(key)))
             {
-                Word word = new Word().setName(key).setValue(value);
-                if (StringUtils.isNotEmpty(get(key)))
-                {
-                    jdbc.update("update Word set value=? where name=?", value, key);
-                }
-                else
-                {
-                    jdbc.insert(word);
-                }
+                sqLiteSyncWriteAccessDao.update("update Word set value=? where name=?", value, key);
             }
-            catch (SQLException e)
+            else
             {
-                e.printStackTrace();
+                sqLiteSyncWriteAccessDao.insert(word);
             }
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
         }
     }
     
     public static void remove(String key)
     {
-        synchronized (lock)
+        try
         {
-            try
-            {
-                jdbc.execute("delete from Word where name=?", key);
-            }
-            catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
+            sqLiteSyncWriteAccessDao.execute("delete from Word where name=?", key);
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
         }
     }
-    
 }

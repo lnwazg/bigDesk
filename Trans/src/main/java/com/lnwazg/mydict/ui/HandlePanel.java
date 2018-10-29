@@ -11,12 +11,13 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
+import com.lnwazg.dbkit.tools.dbcache.tablemap.DBConfigHelper;
 import com.lnwazg.kit.audio.AudioMgr;
 import com.lnwazg.kit.executor.ExecMgr;
+import com.lnwazg.kit.singleton.B;
 import com.lnwazg.kit.swing.R;
 import com.lnwazg.kit.swing.SwingUtils;
 import com.lnwazg.kit.taskman.CallableTask;
-import com.lnwazg.mydict.bean.SystemConfig;
 import com.lnwazg.mydict.util.Constant;
 import com.lnwazg.mydict.util.DictDimens;
 import com.lnwazg.mydict.util.IconMgr;
@@ -46,6 +47,8 @@ public class HandlePanel extends JPanel
     private JToggleButton toggleViewWordBook, toggleAutoSpeak, toggleAutoQuery;
     
     private String word;//待发音的单词
+    
+    DBConfigHelper dbConfigHelper = B.q(DBConfigHelper.class);
     
     public HandlePanel()
     {
@@ -81,7 +84,7 @@ public class HandlePanel extends JPanel
                         WinMgr.translateFrame.add(WinMgr.wordPanel);
                         toggleViewWordBook.setToolTipText("生词本已打开");
                         WinMgr.translateFrame.pack();
-                        SystemConfig.Helper.setOpenWordbook(true);
+                        dbConfigHelper.set("openWordBook", true);
                     }
                     else
                     {
@@ -89,7 +92,7 @@ public class HandlePanel extends JPanel
                         WinMgr.translateFrame.remove(WinMgr.wordPanel);
                         toggleViewWordBook.setToolTipText("生词本已关闭");
                         WinMgr.translateFrame.pack();
-                        SystemConfig.Helper.setOpenWordbook(false);
+                        dbConfigHelper.set("openWordBook", false);
                     }
                 });
             }
@@ -112,14 +115,16 @@ public class HandlePanel extends JPanel
                         toggleAutoQuery.setIcon(IconMgr.autoQueryIcons[0]);
                         toggleAutoQuery.setToolTipText("自动查询");
                         WinMgr.translateFrame.pack();
-                        SystemConfig.Helper.setAutoQuery(true);
+                        dbConfigHelper.set("autoQuery", true);
+                        SrcPanel.autoQuery = true;
                     }
                     else
                     {
                         toggleAutoQuery.setIcon(IconMgr.autoQueryIcons[1]);
                         toggleAutoQuery.setToolTipText("手动查询(回车键执行查询操作)");
                         WinMgr.translateFrame.pack();
-                        SystemConfig.Helper.setAutoQuery(false);
+                        dbConfigHelper.set("autoQuery", false);
+                        SrcPanel.autoQuery = false;
                     }
                     WinMgr.srcPannel.lastWord = "";//便于切换后可以重新查询同一个单词
                 });
@@ -142,13 +147,13 @@ public class HandlePanel extends JPanel
                     {
                         toggleAutoSpeak.setToolTipText("自动发音已开启");
                         toggleAutoSpeak.setIcon(IconMgr.autoSpeakIcons[0]);
-                        SystemConfig.Helper.setAutoSpeak(true);
+                        dbConfigHelper.set("autoSpeak", true);
                     }
                     else
                     {
                         toggleAutoSpeak.setToolTipText("自动发音已关闭");
                         toggleAutoSpeak.setIcon(IconMgr.autoSpeakIcons[1]);
-                        SystemConfig.Helper.setAutoSpeak(false);
+                        dbConfigHelper.set("autoSpeak", false);
                     }
                 });
             }
@@ -226,11 +231,11 @@ public class HandlePanel extends JPanel
                     WinMgr.targetPannel.getPaneScrollPane().setPreferredSize(
                         new Dimension(DictDimens.LEFT_PANEL_WIDTH,
                             (int)WinMgr.targetPannel.getPaneScrollPane().getPreferredSize().getHeight() + DictDimens.DELTA_SIZE));
-                    
+                            
                     WinMgr.wordPanel.getTable().setPreferredScrollableViewportSize(
                         new Dimension(300,
                             (int)WinMgr.wordPanel.getTable().getPreferredScrollableViewportSize().getHeight() + DictDimens.DELTA_SIZE));
-                    
+                            
                     WinMgr.translateFrame.pack();
                 });
             }
@@ -311,7 +316,7 @@ public class HandlePanel extends JPanel
             public void run()
             {
                 spell.setVisible(true);
-                if (SystemConfig.Helper.isAutoSpeak())
+                if (dbConfigHelper.getAsBoolean("autoSpeak"))
                 {
                     //假如自动发音已经打开，则自动发音一次！
                     spell.doClick();

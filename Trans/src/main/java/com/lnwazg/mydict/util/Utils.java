@@ -352,6 +352,7 @@ public class Utils
         try
         {
             File destFile = new File(Constant.USER_DIR + Constant.IMG_SERVER_CONTEXT_PATH, word + Constant.WORD_IMAGE_SUFFIX);
+            destFile.getParentFile().mkdirs();
             if (!destFile.exists())
             {
                 Logs.i("开始下载图片: " + word + " ...");

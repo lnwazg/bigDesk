@@ -3,7 +3,8 @@ package com.lnwazg.mydict.util.memcycle;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.lnwazg.kit.json.GsonCfgMgr;
+import com.lnwazg.dbkit.tools.dbcache.tablemap.DBConfigHelper;
+import com.lnwazg.kit.singleton.B;
 import com.lnwazg.mydict.bean.MemCycle;
 import com.lnwazg.mydict.util.wordbook.WordReview;
 
@@ -24,6 +25,8 @@ import com.lnwazg.mydict.util.wordbook.WordReview;
  */
 public class MemCycleHelper
 {
+    static DBConfigHelper dbConfigHelper = B.q(DBConfigHelper.class);
+    
     /**
      * 往记忆曲线中新增单词
      * @author nan.li
@@ -32,7 +35,7 @@ public class MemCycleHelper
      */
     public static void addWord(String word, String translation)
     {
-        MemCycle memCycle = GsonCfgMgr.readObject(MemCycle.class);
+        MemCycle memCycle = dbConfigHelper.getAs("memCycle", MemCycle.class);
         if (memCycle == null)
         {
             memCycle = new MemCycle();
@@ -51,7 +54,7 @@ public class MemCycleHelper
         }
         remUnits.add(new RemUnit(word, translation));
         memCycle.setRemUnits(remUnits);
-        GsonCfgMgr.writeObject(memCycle);
+        dbConfigHelper.put("memCycle", memCycle);
     }
     
     /**
@@ -81,7 +84,7 @@ public class MemCycleHelper
      */
     public static void byeWord(final String word)
     {
-        MemCycle memCycle = GsonCfgMgr.readObject(MemCycle.class);
+        MemCycle memCycle = dbConfigHelper.getAs("memCycle", MemCycle.class);
         if (memCycle == null)
         {
             return;
@@ -106,7 +109,7 @@ public class MemCycleHelper
                 break;//一旦寻找到，则立即停止寻找
             }
         }
-        GsonCfgMgr.writeObject(memCycle);
+        dbConfigHelper.put("memCycle", memCycle);
     }
     
     /**
@@ -116,7 +119,7 @@ public class MemCycleHelper
      */
     public static void reviewWord(final String word)
     {
-        MemCycle memCycle = GsonCfgMgr.readObject(MemCycle.class);
+        MemCycle memCycle = dbConfigHelper.getAs("memCycle", MemCycle.class);
         if (memCycle == null)
         {
             return;
@@ -154,7 +157,7 @@ public class MemCycleHelper
             }
         }
         memCycle.setRemUnits(remUnits);
-        GsonCfgMgr.writeObject(memCycle);
+        dbConfigHelper.put("memCycle", memCycle);
     }
     
     /**
@@ -166,7 +169,7 @@ public class MemCycleHelper
     public static List<WordReview> getTopNReviews(int limit)
     {
         List<WordReview> results = new ArrayList<WordReview>();
-        MemCycle memCycle = GsonCfgMgr.readObject(MemCycle.class);
+        MemCycle memCycle = dbConfigHelper.getAs("memCycle", MemCycle.class);
         if (memCycle == null)
         {
             return null;

@@ -1,26 +1,21 @@
 package com.lnwazg.mydict.util.wordbook;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.lnwazg.dbkit.jdbc.MyJdbc;
+import com.lnwazg.dbkit.tools.dbcache.tablemap.DBConfigHelper;
 import com.lnwazg.kit.executor.ExecMgr;
-import com.lnwazg.kit.json.GsonCfgMgr;
-import com.lnwazg.kit.list.Lists;
-import com.lnwazg.kit.log.Logs;
 import com.lnwazg.kit.singleton.B;
-import com.lnwazg.mydict.entity.WordBook;
+import com.lnwazg.mydict.bean.WordBook;
 import com.lnwazg.mydict.ui.ext.CellEditorHandle;
 import com.lnwazg.mydict.ui.ext.CellEditorTrans;
 import com.lnwazg.mydict.ui.ext.CellEditorWord;
@@ -55,6 +50,8 @@ public class WordbookHelper
      */
     public static final String WORDS_2_REVIEW = "2";
     
+    static DBConfigHelper dbConfigHelper = B.q(DBConfigHelper.class);
+    
     /**
      * 将生词添加到单词本
      * @author nan.li
@@ -63,34 +60,51 @@ public class WordbookHelper
      */
     public static void addToWordbook(String word, String wordTranslation)
     {
-        MyJdbc myJdbc = B.q(MyJdbc.class);
-        WordBook wordBook;
-        try
+        WordBook wordBook =
+            dbConfigHelper.getAs("wordBook", WordBook.class);
+        if (wordBook == null)
         {
-            wordBook = myJdbc.findOneNoSql(WordBook.class, "word", word);
-            if (wordBook != null)
-            {
-                wordBook.setTrans(wordTranslation);
-                wordBook.setFreq(wordBook.getFreq() + 1);
-                //设置更新时间
-                wordBook.setUpdateTime(new Date());
-            }
-            else
-            {
-                //初始化这个对象
-                wordBook = new WordBook();
-                wordBook.setWord(word);
-                wordBook.setTrans(wordTranslation);
-                wordBook.setFreq(1);
-                //不更新时间
-            }
-            myJdbc.saveOrUpdate(wordBook);
+            wordBook = new WordBook();
+            wordBook.setWords(new ArrayList<String>());
+            wordBook.setTransResults(new ArrayList<String>());
+            wordBook.setWordFreq(new HashMap<String, Integer>());
         }
-        catch (SQLException e)
+        List<String> words = wordBook.getWords();
+        if (words == null)
         {
-            Logs.e(e);
+            words = new ArrayList<String>();
         }
-        
+        List<String> trans = wordBook.getTransResults();
+        if (trans == null)
+        {
+            trans = new ArrayList<String>();
+        }
+        Map<String, Integer> wordFreq = wordBook.getWordFreq();
+        if (wordFreq == null)
+        {
+            wordFreq = new HashMap<String, Integer>();
+        }
+        if (words.contains(word))
+        {
+            int position = words.indexOf(word);
+            words.remove(position);
+            trans.remove(position);
+        }
+        words.add(0, word);
+        trans.add(0, wordTranslation);
+        wordBook.setWords(words);
+        wordBook.setTransResults(trans);
+        Integer oldVal = wordFreq.get(word);
+        if (null == oldVal)
+        {
+            wordFreq.put(word, 1);
+        }
+        else
+        {
+            wordFreq.put(word, oldVal + 1);
+        }
+        wordBook.setWordFreq(wordFreq);
+        dbConfigHelper.put("wordBook", wordBook);
         refreshPanel();//最后刷新显示器屏幕内容
     }
     
@@ -100,27 +114,15 @@ public class WordbookHelper
     */
     public static void refreshPanel()
     {
-        MyJdbc myJdbc = B.q(MyJdbc.class);
-        List<WordBook> wordBooks = myJdbc.list(WordBook.class, "select * from WordBook order by updateTime desc");
-        if (Lists.isEmpty(wordBooks))
+        WordBook wordBook = dbConfigHelper.getAs("wordBook", WordBook.class);
+        if (wordBook == null)
         {
             return;
         }
-        
-        List<String> words = wordBooks.stream().map(WordBook::getWord).collect(Collectors.toList());
-        List<String> transResults = wordBooks.stream().map(WordBook::getTrans).collect(Collectors.toList());
-        
-        //        WordBook wordBook = GsonCfgMgr.readObject(WordBook.class);
-        //        if (wordBook == null)
-        //        {
-        //            return;
-        //        }
-        //        List<String> words = wordBook.getWords();
-        //        List<String> transResults = wordBook.getTransResults();
-        
+        List<String> words = wordBook.getWords();
+        List<String> transResults = wordBook.getTransResults();
         List<WordFreq> topFreqs = getTopNFreqs(Constant.FREQ_NUM);
         List<WordReview> topReviews = getTopNReviews(Constant.REVIEW_NUM);
-        
         int rowsWords = 0, rowsFreqs = 0;
         int rowsReviews = 0;
         if (words != null)
@@ -192,7 +194,6 @@ public class WordbookHelper
         }
         final int finalRowsReviews = rowsReviews;
         final int explainWidth = calcExplainWidth(data);
-        
         ExecMgr.guiExec.execute(new Runnable()
         {
             public void run()
@@ -382,7 +383,7 @@ public class WordbookHelper
      */
     private static List<WordFreq> getTopNFreqs(int limit)
     {
-        WordBook wordBook = GsonCfgMgr.readObject(WordBook.class);
+        WordBook wordBook = dbConfigHelper.getAs("wordBook", WordBook.class);
         if (wordBook == null)
         {
             return null;
@@ -441,7 +442,7 @@ public class WordbookHelper
                 wordFreqMap.remove(toBeRemovedKeys.get(i));
             }
             wordBook.setWordFreq(wordFreqMap);
-            GsonCfgMgr.writeObject(wordBook);
+            dbConfigHelper.put("wordBook", wordBook);
         }
         return resultList;
     }
@@ -455,7 +456,7 @@ public class WordbookHelper
     {
         //将某个单词从单词本中删除，并且添加到记忆曲线仓库中
         //第一步，将某个单词从单词本中删除
-        WordBook wordBook = GsonCfgMgr.readObject(WordBook.class);
+        WordBook wordBook = dbConfigHelper.getAs("wordBook", WordBook.class);
         if (wordBook == null)
         {
             return;
@@ -485,7 +486,7 @@ public class WordbookHelper
         wordBook.setWordFreq(wordFreqMap);
         wordBook.setWords(words);
         wordBook.setTransResults(transResults);
-        GsonCfgMgr.writeObject(wordBook);
+        dbConfigHelper.put("wordBook", wordBook);
         
         //第二步，添加到记忆曲线仓库中
         MemCycleHelper.addWord(word, translation); // 添加到记忆曲线中

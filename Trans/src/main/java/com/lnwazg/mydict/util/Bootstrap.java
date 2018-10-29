@@ -18,8 +18,11 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.lnwazg.dbkit.jdbc.MyJdbc;
-import com.lnwazg.dbkit.tools.db.collection.DbHashMap;
+import com.lnwazg.dbkit.proxy.sqlite.SQLiteSyncWriteAccessDao;
+import com.lnwazg.dbkit.tools.dbcache.tablemap.DBConfigHelper;
 import com.lnwazg.dbkit.utils.DbKit;
 import com.lnwazg.kit.executor.ExecMgr;
 import com.lnwazg.kit.handlerseq.HandlerSequence;
@@ -61,11 +64,26 @@ public class Bootstrap
     {
         DbKit.SQL_MONITOR = true;
         MyJdbc jdbc = DbKit.getJdbc("jdbc:sqlite://" + Constant.USER_DIR + "dict.db", "", "");
-        //注册jdbc实例
         B.s(MyJdbc.class, jdbc);
-        // 自动初始化表结构
+        SQLiteSyncWriteAccessDao sqLiteSyncWriteAccessDao = DbKit.getSQLiteSyncWriteMyJdbcProxy(jdbc);
+        B.s(SQLiteSyncWriteAccessDao.class, sqLiteSyncWriteAccessDao);
         DbKit.packageSearchAndInitTables("com.lnwazg.mydict.entity");
-        B.s(DbHashMap.class, new DbHashMap<>(jdbc, String.class, String.class));
+        DBConfigHelper dbConfigHelper = new DBConfigHelper(sqLiteSyncWriteAccessDao);
+        B.s(dbConfigHelper);
+        
+        //初始化数据库配置
+        if (StringUtils.isEmpty(dbConfigHelper.get("openWordBook")))
+        {
+            dbConfigHelper.put("openWordBook", true);
+        }
+        if (StringUtils.isEmpty(dbConfigHelper.get("autoQuery")))
+        {
+            dbConfigHelper.put("autoQuery", true);
+        }
+        if (StringUtils.isEmpty(dbConfigHelper.get("autoSpeak")))
+        {
+            dbConfigHelper.put("autoSpeak", true);
+        }
     }
     
     public static void initUtils()

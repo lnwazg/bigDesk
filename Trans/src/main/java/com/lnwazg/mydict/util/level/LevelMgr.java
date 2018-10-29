@@ -10,8 +10,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.lnwazg.dbkit.tools.dbcache.tablemap.DBConfigHelper;
 import com.lnwazg.kit.executor.ExecMgr;
-import com.lnwazg.kit.json.GsonCfgMgr;
+import com.lnwazg.kit.singleton.B;
 import com.lnwazg.mydict.bean.UserLevel;
 import com.lnwazg.mydict.util.Constant;
 import com.lnwazg.mydict.util.WinMgr;
@@ -28,6 +29,8 @@ public class LevelMgr
     private static final String CONFIG_FILE_PATH = "level.txt";
     
     private static Map<Integer, Level> LEVEL_MAP = new HashMap<Integer, Level>();
+    
+    static DBConfigHelper dbConfigHelper = B.q(DBConfigHelper.class);
     
     static
     {
@@ -86,23 +89,20 @@ public class LevelMgr
      */
     public static void addWordRefreshTitle()
     {
-        UserLevel userLevel = GsonCfgMgr.readObjectAES(UserLevel.class);
+        UserLevel userLevel =
+            dbConfigHelper.getAs("userLevel", UserLevel.class);
         if (userLevel == null)
         {
             userLevel = new UserLevel();
             userLevel.setCurLevel(0);
             userLevel.setCurLevelHaveNum(0);
             LevelMgr.fillLevelDetails(userLevel);
-            GsonCfgMgr.writeObjectAES(userLevel);
+            dbConfigHelper.set("userLevel", userLevel);
         }
         int curLevel = userLevel.getCurLevel();//当前等级
-        
         int curLevelHaveNum = userLevel.getCurLevelHaveNum();//当前等级拥有的单词数量
-        
         int curLevelNeedAllNum = userLevel.getCurLevelNeedAllNum();//当前等级需要的总单词数量
-        
         curLevelHaveNum++;//新增了一个单词
-        
         if (curLevelHaveNum >= curLevelNeedAllNum)
         {
             curLevelHaveNum = 0;//清空当前级别的技术
@@ -128,7 +128,7 @@ public class LevelMgr
             userLevel.setCurLevelHaveNum(curLevelHaveNum);
             //title无须更新
         }
-        GsonCfgMgr.writeObjectAES(userLevel);
+        dbConfigHelper.set("userLevel", userLevel);
     }
     
     private static void updateLevelDetails(UserLevel userLevel)
